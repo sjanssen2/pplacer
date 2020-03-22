@@ -13,6 +13,19 @@ open Ocamlbuild_plugin
 *)
 
 let run_and_read      = Ocamlbuild_pack.My_unix.run_and_read
+let split s ch =
+  let x = ref [] in
+  let rec go s =
+    let pos = String.index s ch in
+    x := (String.before s pos)::!x;
+    go (String.after s (pos + 1))
+  in
+  try go s
+  with Not_found -> !x
+let split_nl s = split s '\n'
+let before_space s =
+  try String.before s (String.index s ' ')
+  with Not_found -> s
 
 let blank_sep_strings = Ocamlbuild_pack.Lexers.blank_sep_strings
 
@@ -20,9 +33,7 @@ module OCamlFind =
 struct
   (* this lists all supported packages *)
   let find_packages () =
-    blank_sep_strings &
-      Lexing.from_string &
-      run_and_read "ocamlfind list | cut -d' ' -f1"
+      List.map before_space (split_nl & run_and_read "ocamlfind list | cut -d' ' -f1")
 
   (* this is supposed to list available syntaxes, but I don't know how to do it. *)
   let find_syntaxes () = ["camlp4o"; "camlp4r"]
@@ -236,6 +247,7 @@ let _ = dispatch begin function
     dep ["c_pplacer"] ["pplacer_src/libpplacercside.a"];
     dep ["c_cdd"] ["cdd_src/libcdd.a"];
     dep ["c_pam"] ["pam_src/libpplacer_pam.a"];
+    flag ["ocaml"; "compile"] (A "-unsafe-string");
     flag ["link"; "c_pam"] (S[A"-cclib"; A"-lgsl"]);
 
   | After_options ->
