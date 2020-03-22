@@ -1,25 +1,32 @@
 ## pplacer-build
 ## Build pplacer from source
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 RUN apt-get -y update
 RUN apt-get -y install \
-camlp4-extra=4.01.0-3ubuntu3.1 \
-gawk=1:4.0.1+dfsg-2.1ubuntu2 \
-libgsl0-dev=1.16+dfsg-1ubuntu1 \
-libsqlite3-dev=3.8.2-1ubuntu2.1 \
-zlib1g-dev=1:1.2.8.dfsg-1ubuntu1 \
-m4=1.4.17-2ubuntu1 \
-wget=1.15-1ubuntu1.14.04.4 \
-ocaml=4.01.0-3ubuntu3.1 \
-patch=2.7.1-4ubuntu2.4 \
-build-essential=11.6ubuntu6 \
-pkg-config=0.26-1ubuntu4 \
-unzip=6.0-9ubuntu1.5 \
-sqlite3=3.8.2-1ubuntu2.1 \
-python=2.7.5-5ubuntu3 \
-zip=3.0-8
+camlp4=4.02.1+3-2 \
+gawk=1:4.1.3+dfsg-0.1 \
+libsqlite3-dev \
+zlib1g-dev \
+m4=1.4.17-5 \
+wget \
+ocaml=4.02.3-5ubuntu2 \
+patch=2.7.5-1ubuntu0.16.04.2 \
+build-essential=12.1ubuntu2 \
+pkg-config=0.29.1-0ubuntu1 \
+unzip=6.0-20ubuntu1 \
+sqlite3 \
+python=2.7.12-1~16.04 \
+zip=3.0-11 \
+git
 
+# install gls 1.16
+RUN mkdir /src
+WORKDIR /src
+RUN wget ftp://ftp.gnu.org/gnu/gsl/gsl-1.16.tar.gz
+RUN tar xzvf gsl-1.16.tar.gz 
+WORKDIR /src/gsl-1.16
+RUN ./configure && make && make install
 
 RUN wget https://raw.githubusercontent.com/ocaml/opam/1.3.1/shell/opam_installer.sh -O - | sh -s /usr/local/bin
 RUN ln -s /usr/local/bin/opam /usr/bin/opam && /usr/local/bin/opam init -y
